@@ -17,7 +17,7 @@ def workProcess(model, datas, sample_round, mode):
     loss = .0
     for data in datas:
         top_actions, top_actprobs, bot_actions, bot_actprobs = [], [], [], []
-        preoptions, preactions = rule_actions(data['relations'])   
+        preoptions, preactions = rule_actions(data['relations'])
         for i in range(sample_round):
             if "pretrain" in mode and "test" not in mode:
                 top_action, top_actprob, bot_action, bot_actprob = \
@@ -38,6 +38,9 @@ def workProcess(model, datas, sample_round, mode):
         if "test" not in mode:
             loss += optimize_round(model, top_actions, top_actprobs, bot_actions,\
                     bot_actprobs, data['relations'], mode)
+    if len(datas) < 1:
+         print("Something's wrong. Got no Data")
+         return acc, cnt, tot, loss
     return acc, cnt, tot, loss / len(datas)
 
 def worker(model, rank, dataQueue, resultQueue, freeProcess, lock, flock, lr):
@@ -105,4 +108,3 @@ def test(dataID, model, datas, mode, dataQueue, resultQueue, freeProcess, lock, 
     if dataID < -2:
         print(testmode)
     return train(-dataID-1, model, datas, 1, testmode, dataQueue, resultQueue, freeProcess, lock, numprocess)
-
